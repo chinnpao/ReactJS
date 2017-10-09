@@ -1,25 +1,33 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var {Route, Router, IndexRoute, hashHistory} = require('react-router');
-var Main = require('Main');
-var Weather = require('Weather');
-var About = require('About');
-var Examples = require('Examples');
+var { Provider } = require('react-redux');
+var { hashHistory } = require('react-router');
+var actions = require('actions');
+var store = require('configureStore').configure();
+
+import firebase from 'app/firebase/';
+import router from 'app/router/';
+
+firebase.auth().onAuthStateChanged((user) => {
+	if (user) {
+		store.dispatch(actions.login(user.uid));
+		store.dispatch(actions.startAddTodos());
+		hashHistory.push('/todos');
+	} else {
+		store.dispatch(actions.logout());
+		hashHistory.push('/');
+	}
+});
 
 // Load foundation
-require('style!css!foundation-sites/dist/foundation.min.css')
 $(document).foundation();
 
 // App CSS
 require('style!css!sass!applicationStyles');
 
 ReactDOM.render(
-	<Router history={hashHistory}>
-		<Route path="/" component={Main}>
-			<Route path="about" component={About}/>
-			<Route path="examples" component={Examples}/>
-			<IndexRoute component={Weather}/>
-		</Route>
-	</Router>,
+	<Provider store={store}>
+		{router}
+	</Provider>,
 	document.getElementById('app')
 );
