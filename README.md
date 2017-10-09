@@ -1,2 +1,2 @@
 # master
-Default personal repository
+Personal learning
